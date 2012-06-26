@@ -1,0 +1,92 @@
+<h1>Add User</h1>
+<hr />
+<form class="form-horizontal">
+  <fieldset>
+    <div class="control-group">
+      <label class="control-label">Username</label>
+      <div class="controls">
+        <input type="text" class="input-xlarge" data-bind="value: username" />
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <label class="control-label" data-bind="style:{color:passwordColor()}" >Password</label>
+      <div class="controls">
+        <input type="password" class="input-xlarge" data-bind="value: password, valueUpdate: 'afterkeydown'" />
+        <span style="display:none" class="help-inline" data-bind="visible:passwordStength()">
+          <b data-bind="style:{color:passwordColor()}">Strength:</b> <span data-bind="text:passwordStength()">0</span>%
+        </span>
+      </div>
+    </div>
+    
+    <div class="control-group">
+      <label class="control-label">Confirm</label>
+      <div class="controls">
+        <input type="password" class="input-xlarge" data-bind="value: confirm, valueUpdate: 'afterkeydown'" />
+        <span style="display:none;color:darkgreen" class="help-inline" data-bind="visible:isConfirmed()">Passwords Match!</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <a class="btn btn-primary" data-bind="click:save">Save</a>
+    </div>
+  
+  </fieldset>
+</form>
+<% content_for(:init_js) do %>
+  <script type="text/javascript" language="Javascript">
+    
+    // View Model
+    var ViewModel = function() {
+      var self = this;
+
+      // Values
+      self.username   = ko.observable('');
+      self.password   = ko.observable('');
+      self.confirm    = ko.observable('');
+
+      // Computed Observables
+      self.passwordStength = ko.computed(function() {
+        if(self.password().length <= 0) return 0;
+        return Math.round(checkPassword(self.password()) / 100 * 100);
+      }, self);
+
+      self.passwordColor = ko.computed(function(){
+        var str = self.passwordStength();
+        if(str == 0) return "black";
+        if(str > 80) return "green";
+        if(str > 50) return "#B0C705";
+        if(str > 25) return "#FFC23F";
+        return "red";
+      }, self);
+
+      self.isConfirmed  = ko.computed(function(){
+        if(!self.password().length) return false;
+        return self.password() == self.confirm()
+      }, self);
+
+      self.isValidForm = ko.computed(function(){
+        if(self.username().length < 3)  return false;
+        if(self.passwordStength() < 50) return false;
+        if(!self.isConfirmed())         return false;
+        return true
+      }, self);
+
+      // Actions
+      self.save = function() {
+        alert(self.isValidForm() ? 'Saved!' : 'Form is invalid!');
+      }
+    };
+    
+    // Init!
+    window.view = new ViewModel();
+    ko.applyBindings(window.view);
+
+  </script>
+<% end %>
+<% content_for(:view_model) do %>
+  <%= raw view_model(
+    :observables  => [:username, :password, :confirm], 
+    :functions    => [:passwordStength, :passwordColor, :isConfirmed, :isValidForm]
+  ) %>
+<% end %>

@@ -1,0 +1,162 @@
+<h1>Products</h1>
+<hr />
+<ul class="thumbnails" data-bind="foreach:products">
+  <li class="span2">
+    <div class="thumbnail">
+      <img src="http://placehold.it/160x100" alt="">
+      <div class="caption">
+        <a href="#" style="" data-bind="click: $parent.addToCart" class="btn btn-primary btn-mini pull-right">
+          <i class="icon-plus icon-white"></i> Add
+        </a>
+        <h5 data-bind="text:$data.name"></h5>
+        <p>$<span data-bind="text:$data.price().formatMoney(2,'.',',')"></span></p>
+        
+      </div>
+    </div>
+  </li>
+</ul>
+
+<h1>Cart</h1>
+<hr />
+<div class="row-fluid">
+  <div class="span8">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th style="width:30px">Qty.</th>
+          <th>Product</th>
+          <th>Cost</th>
+          <th style="width:75px">Actions</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach:cart">
+        <tr>
+          <td><input style="width:28px" data-bind="value:$data.quantity" /></td>
+          <td><span data-bind="text:$data.product().name"></span></td>
+          <td style="text-align:right">$<span data-bind="text:$data.cost().formatMoney(2,'.',',')"></span></td>
+          <td style="text-align:center">
+            <a href="#" class="btn btn-mini btn-danger" data-bind="click:$parent.removeFromCart">
+              <i class="icon-remove icon-white"></i> Remove
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="span4">
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+          <td><strong>Subtotal<strong></td>
+          <td style="text-align:right">$<span data-bind="text:subtotal().formatMoney(2,'.',',')"></span></td>
+        </tr>
+        <tr>
+          <td><strong>Tax<strong></td>
+          <td style="text-align:right">$<span data-bind="text:tax().formatMoney(2,'.',',')"></span></td>
+        </tr>
+        <tr>
+          <td><strong>Shipping<strong></td>
+          <td style="text-align:right">$<span data-bind="text:shipping_cost().formatMoney(2,'.',',')"></span></td>
+        </tr>
+        <tr>
+          <td><strong>Total<strong></td>
+          <td style="text-align:right"><strong>$<span data-bind="text:total().formatMoney(2,'.',',')"></span></strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+
+<% content_for(:init_js) do %>
+  <script type="text/javascript" language="Javascript">
+    
+    // Product Class
+    var Product = function(id, name, price) {
+      this.id    = ko.observable(id);
+      this.name  = ko.observable(name);
+      this.price = ko.observable(price);
+    };
+
+    // CartItem Class
+    var CartItem = function(product, quantity) {
+      var self      = this;
+
+      self.product  = ko.observable(product);
+      self.quantity = ko.observable(quantity || 1);
+
+      self.cost     = ko.computed(function(){
+        return self.product().price() * self.quantity();
+      });
+    };
+
+    // View Model
+    var ViewModel = function() {
+      var self = this;
+
+      // Observables
+      self.sales_tax      = ko.observable(0.07);
+      self.shipping_cost  = ko.observable(10.00);
+
+      // Observable Arrays
+      self.cart           = ko.observableArray();
+      self.products       = ko.observableArray();
+
+      // Computed Observables
+      self.subtotal = ko.computed(function(){
+        var subtotal = 0;
+        $(self.cart()).each(function(index, cart_item){
+          subtotal += cart_item.cost();
+        });
+        return subtotal;
+      });
+
+      self.tax = ko.computed(function(){
+        var val = self.subtotal() * self.sales_tax();
+        return val;
+      });
+
+      self.total = ko.computed(function(){
+        var total = 0;
+        total += self.shipping_cost();
+        total += self.subtotal();
+        total += self.tax();
+        return total;
+      });
+
+      // Actions
+      self.addToCart = function(product, event) {
+        var cart_item = new CartItem(product, 1);
+        self.cart.push(cart_item);
+      };
+
+      self.removeFromCart = function(cart_item, event) {
+        self.cart.remove(cart_item);
+      };
+    };
+    
+    // Instantiate ViewModel
+    window.view_model = new ViewModel();
+
+    // Setup the products
+    view_model.products([
+      new Product(1, "Laptop", 1229.99),
+      new Product(2, "Mouse", 14.95),
+      new Product(3, "Keyboard", 29.99),
+      new Product(4, "Monitor", 278.93)
+    ]);
+
+    // Init!
+    ko.applyBindings(window.view_model);
+
+  </script>
+<% end %>
+<% content_for(:view_model) do %>
+  <%= raw view_model(
+    :observables  => [:sales_tax, :shipping_cost], 
+    :functions    => [:subtotal, :tax, :total],
+    :arrays       => [:cart, :products]
+  ) %>
+<% end %>

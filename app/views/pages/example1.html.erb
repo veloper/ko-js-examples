@@ -1,0 +1,38 @@
+<h1>Presenter</h1>
+
+<hr />
+
+<div class="well">
+  <h3>Name</h3>
+  <p data-bind="text:name"></p>
+
+  <h3>Site</h3>
+  <p data-bind="text:site"></p>
+
+  <h3>Age</h3>
+  <p data-bind="text:age"></p>
+</div>
+
+<% content_for(:init_js) do %>
+  <script type="text/javascript" language="Javascript">
+    
+    // View Model Class
+    var ViewModel = function() {
+      var self  = this;
+      
+      self.name = "Daniel Doezema"
+      self.site = "http://dan.doezema.com"
+      self.age  = 21;
+    };
+    
+    // Instantiate
+    window.view_model = new ViewModel();
+    
+    // Away we go...
+    ko.applyBindings(view_model);
+  </script>
+<% end %>
+
+<% content_for(:view_model) do %>
+  <%= raw view_model(:name, :site, :age) %>
+<% end %>
