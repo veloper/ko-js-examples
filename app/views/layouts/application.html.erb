@@ -13,7 +13,7 @@
 
     <%= stylesheet_link_tag "application", :media => "all" %>
 
-    <link href="images/favicon.ico" rel="shortcut icon">
+    <link href="/favicon.ico" rel="shortcut icon">
     <link href="images/apple-touch-icon.png" rel="apple-touch-icon">
     <link href="images/apple-touch-icon-72x72.png" rel="apple-touch-icon" sizes="72x72">
     <link href="images/apple-touch-icon-114x114.png" rel="apple-touch-icon" sizes="114x114">
@@ -67,13 +67,27 @@
       </div><!--/content-->
 
       <footer>
+<ul class="nav nav-tabs">
+  <li class="active"><a href="#code_javascript" data-toggle="tab">JavaScript (View Model)</a></li>
+  <li><a href="#code_html" data-toggle="tab">HTML (View)</a></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane active" id="code_javascript">
+<pre class="prettyprint linenums lang-js">
+<%= yield(:init_js).gsub(/<script[^>]+?>/, '').gsub(/<\/script>/, '').lines.collect{|x| x.blank? ? x : x.slice(2,x.length) }.join("").strip %>
+</pre>
+  </div>
+  <div class="tab-pane" id="code_html">
+<pre class="prettyprint linenums lang-html">
+<%= raw CGI::escapeHTML(yield) %>
+</pre>
+  </div>
+</div>
       </footer>
 
     </div> <!-- /container -->
 
-    <!-- Javascripts
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
     <%= javascript_include_tag "application" %>
     <%= content_for?(:init_js) ? yield(:init_js) : "" %>
   </body>

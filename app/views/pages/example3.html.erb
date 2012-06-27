@@ -67,91 +67,95 @@
     </table>
   </div>
 </div>
-
-
-
 <% content_for(:init_js) do %>
-  <script type="text/javascript" language="Javascript">
-    
-    // Product Class
-    var Product = function(id, name, price) {
-      this.id    = ko.observable(id);
-      this.name  = ko.observable(name);
-      this.price = ko.observable(price);
+<script type="text/javascript" language="Javascript">
+  
+  // Product CLASS
+  var Product = function(id, name, price) {
+    this.id    = ko.observable(id);
+    this.name  = ko.observable(name);
+    this.price = ko.observable(price);
+  };
+
+  // CartItem CLASS
+  var CartItem = function(product, quantity) {
+    var self      = this; // Scope Trick
+
+    self.product  = ko.observable(product);
+    self.quantity = ko.observable(quantity || 1);
+
+    self.cost     = ko.computed(function(){
+      return self.product().price() * self.quantity();
+    });
+  };
+
+  // View Model CLASS
+  var ViewModel = function() {
+    var self = this; // Scope Trick
+
+    /**
+     * Observables
+     */
+    self.sales_tax      = ko.observable(0.07);
+    self.shipping_cost  = ko.observable(10.00);
+
+    /**
+     * Observable Arrays
+     */
+    self.cart           = ko.observableArray();
+    self.products       = ko.observableArray();
+
+    /**
+     * Computed Observables
+     */
+    self.subtotal = ko.computed(function(){
+      var subtotal = 0;
+      $(self.cart()).each(function(index, cart_item){
+        subtotal += cart_item.cost();
+      });
+      return subtotal;
+    });
+
+    self.tax = ko.computed(function(){
+      return self.subtotal() * self.sales_tax();
+    });
+
+    self.total = ko.computed(function(){
+      return self.shipping_cost() + self.subtotal() + self.tax();
+    });
+
+    /**
+     * Actions
+     */
+    self.addToCart = function(product, event) {
+      // Instantiate a new CartItem object using the passed
+      // in `Product` object, and a set quantity.
+      var cart_item = new CartItem(product, 1);
+
+      // Add the cart_item to the cart (which is an Observable Array)
+      self.cart.push(cart_item);
     };
 
-    // CartItem Class
-    var CartItem = function(product, quantity) {
-      var self      = this;
-
-      self.product  = ko.observable(product);
-      self.quantity = ko.observable(quantity || 1);
-
-      self.cost     = ko.computed(function(){
-        return self.product().price() * self.quantity();
-      });
+    self.removeFromCart = function(cart_item, event) {
+      // Remove the `cart_item` (which is a `CartItem` object) from the cart 
+      self.cart.remove(cart_item);
     };
+  };
+  
+  // Instantiate the ViewModel
+  window.view_model = new ViewModel();
 
-    // View Model
-    var ViewModel = function() {
-      var self = this;
+  // Setup the some products...
+  view_model.products([
+    new Product(1, "Laptop", 1229.99),
+    new Product(2, "Mouse", 14.95),
+    new Product(3, "Keyboard", 29.99),
+    new Product(4, "Monitor", 278.93)
+  ]);
 
-      // Observables
-      self.sales_tax      = ko.observable(0.07);
-      self.shipping_cost  = ko.observable(10.00);
-
-      // Observable Arrays
-      self.cart           = ko.observableArray();
-      self.products       = ko.observableArray();
-
-      // Computed Observables
-      self.subtotal = ko.computed(function(){
-        var subtotal = 0;
-        $(self.cart()).each(function(index, cart_item){
-          subtotal += cart_item.cost();
-        });
-        return subtotal;
-      });
-
-      self.tax = ko.computed(function(){
-        var val = self.subtotal() * self.sales_tax();
-        return val;
-      });
-
-      self.total = ko.computed(function(){
-        var total = 0;
-        total += self.shipping_cost();
-        total += self.subtotal();
-        total += self.tax();
-        return total;
-      });
-
-      // Actions
-      self.addToCart = function(product, event) {
-        var cart_item = new CartItem(product, 1);
-        self.cart.push(cart_item);
-      };
-
-      self.removeFromCart = function(cart_item, event) {
-        self.cart.remove(cart_item);
-      };
-    };
-    
-    // Instantiate ViewModel
-    window.view_model = new ViewModel();
-
-    // Setup the products
-    view_model.products([
-      new Product(1, "Laptop", 1229.99),
-      new Product(2, "Mouse", 14.95),
-      new Product(3, "Keyboard", 29.99),
-      new Product(4, "Monitor", 278.93)
-    ]);
-
-    // Init!
-    ko.applyBindings(window.view_model);
-
-  </script>
+  // Away we go...
+  ko.applyBindings(window.view_model);
+</script>
 <% end %>
 <% content_for(:view_model) do %>
   <%= raw view_model(

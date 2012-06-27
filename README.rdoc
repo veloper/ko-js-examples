@@ -1,3 +1,0 @@
-== Knockout.js Examples
-
-## See: http://ko-js-examples.herokuapp.com

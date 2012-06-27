@@ -12,6 +12,8 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require knockout.js
 //= require twitter/bootstrap
-//= require_tree .
+//= require_tree ./libs
+//= require google-code-prettify/prettify
+
+prettyPrint();
