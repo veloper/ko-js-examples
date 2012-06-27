@@ -1,3 +1,5 @@
-== Knockout.js Examples
+# Knockout.js Examples
 
-http://ko-js-examples.herokuapp.com
+## Live App
+
+* http://ko-js-examples.herokuapp.com
