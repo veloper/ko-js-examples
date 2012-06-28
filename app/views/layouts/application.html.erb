@@ -67,7 +67,7 @@
       </div><!--/content-->
 
       <footer>
-<% content_for?(:view_model) %>
+<% if content_for?(:view_model) %>
 <ul class="nav nav-tabs">
   <li class="active"><a href="#code_javascript" data-toggle="tab">JavaScript (View Model)</a></li>
   <li><a href="#code_html" data-toggle="tab">HTML (View)</a></li>
