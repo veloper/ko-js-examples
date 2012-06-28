@@ -4,8 +4,8 @@ Just a few examples of Knockout.js in action.
 
 ## Live App
 
-* http://ko-js-examples.herokuapp.com
+* http://kojs.dan.doezema.com
 
 ## Presentation Slides
 
-* http://ko-js-examples.herokuapp.com/files/2012-02-25-slides.pdf
+* http://kojs.dan.doezema.com/files/2012-02-25-slides.pdf
