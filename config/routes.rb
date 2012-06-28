@@ -1,7 +1,7 @@
 Koexample::Application.routes.draw do
   root :to => "pages#index"
 
-  get 'example/1' => "pages#example1"
-  get 'example/2' => "pages#example2"
-  get 'example/3' => "pages#example3"
+  get 'examples/1' => "pages#example1"
+  get 'examples/2' => "pages#example2"
+  get 'examples/3' => "pages#example3"
 end
