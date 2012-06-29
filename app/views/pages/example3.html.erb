@@ -6,20 +6,36 @@
 
 <h2>Products</h2>
 <hr />
-<ul class="thumbnails" data-bind="foreach:products">
+
+<!-- Iterate over view_mode.products (Observable Array) -->
+<ul data-bind="foreach:products" class="thumbnails">
+  
+  <!-- The HTML within this <ul></ul> block will get rendered for each item in view_model.products -->
+  
   <li class="span2">
     <div class="thumbnail">
       <img src="http://placehold.it/160x100" alt="">
       <div class="caption">
-        <a href="#" style="" data-bind="click: $parent.addToCart" class="btn btn-primary btn-mini pull-right">
-          <i class="icon-plus icon-white"></i> Add
-        </a>
+        
+        <!-- [Product] $data.name (Observable) -->
         <h5 data-bind="text:$data.name"></h5>
+
+        <!-- [Product] $data.price (Computed Observable) -->
         <p>$<span data-bind="text:$data.price().formatMoney(2,'.',',')"></span></p>
         
+        <!-- 
+          - $parent is a special object used to reach above the scope of the foreach loop we're currently in.
+          - Events binding `click:$parent.addToCart` executes an Action Method in the View Model
+          - Knockout automaticlly passes $data as the first parameter, and the `events` object as the second parameter.
+        -->
+        <a data-bind="click: $parent.addToCart" href="#" class="btn btn-mini btn-success">
+          <i class="icon-plus icon-white"></i> Add
+        </a>
+      
       </div>
     </div>
   </li>
+
 </ul>
 
 <h2>Cart</h2>
@@ -35,15 +51,42 @@
           <th style="width:75px">Actions</th>
         </tr>
       </thead>
+
+      <!-- Iterate over view_mode.products (Observable Array) -->
       <tbody data-bind="foreach:cart">
+
+        <!-- This HTML within this <tbody></tbody> block will get rendered for each item in view_model.cart -->
+
         <tr>
-          <td><input style="width:28px" data-bind="value:$data.quantity" /></td>
-          <td><span data-bind="text:$data.product().name"></span></td>
-          <td style="text-align:right">$<span data-bind="text:$data.cost().formatMoney(2,'.',',')"></span></td>
+          <td>
+          
+            <!-- [CartItem] $data.quantity (Observable) -->
+            <input style="width:28px" data-bind="value:$data.quantity" />
+          
+          </td>
+          <td>
+
+            <!-- [CartItem] $data.product().name (Observable) -->
+            <span data-bind="text:$data.product().name"></span>
+          
+          </td>
+          <td style="text-align:right">
+            
+            <!-- [CartItem] $data.cost (Computed Observable) -->
+            $<span data-bind="text:$data.cost().formatMoney(2,'.',',')"></span>
+
+          </td>
           <td style="text-align:center">
+
+            <!-- 
+              - $parent is a special object used to reach above the scope of the foreach loop we're currently in.
+              - Events binding `click:$parent.removeFromCart` executes an Action Method in the View Model
+              - Knockout automaticlly passes $data as the first parameter, and the `events` object as the second parameter.
+            -->
             <a href="#" class="btn btn-mini btn-danger" data-bind="click:$parent.removeFromCart">
               <i class="icon-remove icon-white"></i> Remove
             </a>
+
           </td>
         </tr>
       </tbody>
@@ -55,19 +98,39 @@
       <tbody>
         <tr>
           <td><strong>Subtotal<strong></td>
-          <td style="text-align:right">$<span data-bind="text:subtotal().formatMoney(2,'.',',')"></span></td>
+          <td style="text-align:right">
+
+            <!-- [ViewModel] view_model.cost (Computed Observable) -->
+            $<span data-bind="text:subtotal().formatMoney(2,'.',',')"></span>
+          
+          </td>
         </tr>
         <tr>
           <td><strong>Tax<strong></td>
-          <td style="text-align:right">$<span data-bind="text:tax().formatMoney(2,'.',',')"></span></td>
+          <td style="text-align:right">
+
+            <!-- [ViewModel] view_model.cost (Computed Observable) -->
+            $<span data-bind="text:tax().formatMoney(2,'.',',')"></span>
+
+          </td>
         </tr>
         <tr>
           <td><strong>Shipping<strong></td>
-          <td style="text-align:right">$<span data-bind="text:shipping_cost().formatMoney(2,'.',',')"></span></td>
+          <td style="text-align:right">
+
+            <!-- [ViewModel] view_model.cost (Observable) -->
+            $<span data-bind="text:shipping_cost().formatMoney(2,'.',',')"></span>
+
+          </td>
         </tr>
         <tr>
           <td><strong>Total<strong></td>
-          <td style="text-align:right"><strong>$<span data-bind="text:total().formatMoney(2,'.',',')"></span></strong></td>
+          <td style="text-align:right">
+            
+            <!-- [ViewModel] view_model.cost (Computed Observable) -->
+            <strong>$<span data-bind="text:total().formatMoney(2,'.',',')"></span></strong>
+
+          </td>
         </tr>
       </tbody>
     </table>
@@ -76,14 +139,14 @@
 <% content_for(:init_js) do %>
 <script type="text/javascript" language="Javascript">
   
-  // Product CLASS
+  // CLASS Product 
   var Product = function(id, name, price) {
     this.id    = ko.observable(id);
     this.name  = ko.observable(name);
     this.price = ko.observable(price);
   };
 
-  // CartItem CLASS
+  // CLASS CartItem 
   var CartItem = function(product, quantity) {
     var self      = this; // Scope Trick
 
@@ -95,7 +158,7 @@
     });
   };
 
-  // View Model CLASS
+  // CLASS ViewModel 
   var ViewModel = function() {
     var self = this; // Scope Trick
 
@@ -135,15 +198,15 @@
      */
     self.addToCart = function(product, event) {
       // Instantiate a new CartItem object using the passed
-      // in `Product` object, and a set quantity.
+      // in `Product` object, and then set a quantity of 1.
       var cart_item = new CartItem(product, 1);
 
-      // Add the cart_item to the cart (which is an Observable Array)
+      // Add the CartItem instance to the self.cart (Observable Array)
       self.cart.push(cart_item);
     };
 
     self.removeFromCart = function(cart_item, event) {
-      // Remove the `cart_item` (which is a `CartItem` object) from the cart 
+      // Remove the `cart_item` (which is a `CartItem` instance) from self.cart
       self.cart.remove(cart_item);
     };
   };
@@ -151,7 +214,7 @@
   // Instantiate the ViewModel
   window.view_model = new ViewModel();
 
-  // Setup the some products...
+  // Add some products...
   view_model.products([
     new Product(1, "Laptop", 1229.99),
     new Product(2, "Mouse", 14.95),

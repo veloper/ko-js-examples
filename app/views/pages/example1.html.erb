@@ -4,32 +4,36 @@
 <h1>Example 1 :: Presenter</h1>
 <hr />
 <div class="well">
+
   <h3>Name</h3>
+
+  <!-- view_model.name -->
   <p data-bind="text:name"></p>
 
   <h3>Site</h3>
+
+  <!-- view_model.site -->
   <p data-bind="text:site"></p>
 
   <h3>Age</h3>
+
+  <!-- view_model.age -->
   <p data-bind="text:age"></p>
+
 </div>
 <% content_for(:init_js) do %>
 <script type="text/javascript" language="Javascript">
-  // ViewModel CLASS
-  var ViewModel = function() {
-    this.name = "Daniel Doezema"
-    this.site = "http://dan.doezema.com"
-    this.age  = 28;
+  // The View Model as a simple Object Literal
+  window.view_model = {
+    name:"Daniel Doezema",
+    site:"http://dan.doezema.com",
+     age:28
   };
-  
-  // Instantiate the ViewModel
-  window.view_model = new ViewModel();
-  
+    
   // Away we go...
   ko.applyBindings(view_model);
 </script>
 <% end %>
-
 <% content_for(:view_model) do %>
   <%= raw view_model(:name, :site, :age) %>
 <% end %>
